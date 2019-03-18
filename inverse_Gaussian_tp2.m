@@ -1,4 +1,9 @@
-function [a,tp,denom,sum_is_one] = inverse_Gaussian_tp2(a,m,s)
+function [a,tp,denom,sum_is_one,ubb,lbt] = inverse_Gaussian_tp2(a,m,s)
+%upper bound on beta
+ubb=(9/8)*s^2+m/(2*s^2);
+%lower bound on t*
+lbt=1/(3*s^2);
+
 h=.001;
 a_fine=0:h:max(a);
 y_fine=onestagepdf2(a_fine,m,s);
