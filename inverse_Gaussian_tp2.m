@@ -1,5 +1,5 @@
 function [a,tp,denom,sum_is_one] = inverse_Gaussian_tp2(a,m,s)
-h=.0001;
+h=.001;
 a_fine=0:h:max(a);
 y_fine=onestagepdf2(a_fine,m,s);
 int_index=zeros(1,length(a));
