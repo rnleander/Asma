@@ -2,11 +2,11 @@ function y = invgcdf(t,m,s)
 
 mu = 1/m;
 
-lam = 1/(s^2)
+lam = 1/(s^2);
 
-arg1 = sqrt(mu/lam)*(t/mu - 1);
+arg1 = sqrt(lam./t).*(t./mu - 1);
 
-arg2 = -1*sqrt(mu/lam)*(t/mu + 1);
+arg2 = -1.*sqrt(lam./t).*(t./mu + 1);
 
 norm1 = cdf('Normal',arg1,1,1);
 

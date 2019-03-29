@@ -3,7 +3,7 @@ function [y] = inverse_Gaussian_tp3(a,m,s)
 
 y1=onestagepdf2(a,m,s);
 
-int = invgcdf(a,m,s)
+int = invgcdf(a,m,s);
 
 y = y1./(1.-int);
 
