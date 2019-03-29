@@ -51,11 +51,11 @@ g1_norm(:,1)=g1(:,1)/G1(1);
 g2_norm(:,1)=g2(:,1)/G2(1);
 
 % Transition probabilities have an age-dependency with Gaussian dist.
-%tp1=@(a)Gaussian_density(a,C1,1);
-%tp2=@(a)Gaussian_density(a,C2,1);
+tp1=@(a)Gaussian_density(a,C1,1);
+tp2=@(a)Gaussian_density(a,C2,1);
 
-tp1=@(a)ones(size(a));
-tp2=@(a)ones(size(a));
+%tp12=@(a)ones(size(a));
+%tp22=@(a)ones(size(a));
 
 f1=@(a)B1*tp1(a);
 f2=@(a)B2*tp2(a);
@@ -90,16 +90,23 @@ end
     hold off
     surf(t,ages1,g1_norm)
     hold on
-    axis([0 T 0 T])
+    axis([0 T 0 T]);
     shading interp
     saveas(gcf,'G1')
     hold off
     
     surf(t,ages2,g2_norm)
     hold on
-    axis([0 T 0 T])
+    axis([0 T 0 T]);
     shading interp
     saveas(gcf,'G2')
+    
+    hold off
+    
+    plot(t,G1./(G1+G2),'g','LineWidth',4);
+    hold on 
+    plot(t,G2./(G1+G2),'r','LineWidth',4);
+    saveas(gcf,'fractions_G1_G2');
 
 end
 
