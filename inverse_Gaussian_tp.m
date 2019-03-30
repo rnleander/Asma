@@ -2,7 +2,7 @@ function [a,y,y1,denom,bb,lbt] = inverse_Gaussian_tp(a,m,s)
 %computes the transition probability at the ages in a
 
 %upper bound on beta
-bb=(9/8)*s^2+m/(2*s^2);
+bb=(9/8)*s^2+m^2/(2*s^2);
 %lower bound on t*
 lbt=1/(3*s^2);
 h=.0001;
