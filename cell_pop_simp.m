@@ -93,16 +93,6 @@ end
     hold on
     shading interp
     saveas(gcf,'G2')
-    
-    
-        
-
-
-
-
-
-
-
 
 
 end

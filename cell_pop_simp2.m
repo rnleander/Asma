@@ -1,25 +1,37 @@
-function [g1_norm, g2_norm] = cell_pop_simp2(B1,B2,C1,C2,T)
+function [g1_norm, g2_norm] = cell_pop_simp2(a1max,a2max,T,beta)
 %B1 and B2 are the per capita rates of leaving a given stage.
 %cells that leave the first stage enter the second stage.
 %cells that leave the second stage, divide, and their daughters enter the
 %first stage.
 
 eps=.01;
-a1max=C1*10;
-a2max=C2*10;
 
 
 Gaussian_density=@(a,mu,sigmasq)(1/(2*pi*sigmasq)^.5)*exp(-((a-mu).^2)/(2*sigmasq));
 
 h=.01;
+%gives num_steps age gridpoints for each age step when integrating along
+%characteristics. num_steps should be odd, to get an even number of grid
+%points.
+hfine=.01/num_steps;
 
 %ages at which we approximate the population density
-ages1=0:h:a1max;
-ages2=0:h:a2max;
+ages1=0:h:a1max+T;
+ages2=0:h:a2max+T;
+
+ages1_fine=0:h:a1max+T;
+ages2_fine=0:h:a2max+T;
+
+mu1=4;
+mu2=2;
+sigmasq1=.1;
+sigmasq2=.1;
 
 % Set the initial populations
-init_pop1=Gaussian_density(ages1, 1, .1)*10^(-2);
-init_pop2=Gaussian_density(ages2, 4, .1)*10^(-2);
+init_pop1=Gaussian_density(ages1, mu1, sigmasq1)*10^(-2);
+init_pop1(ages1>a1max)=0;
+init_pop2=Gaussian_density(ages2,mu2, sigmasq2)*10^(-2);
+init_pop2(ages2>a2max)=0;
 
 n1=length(ages1);
 n2=length(ages2);
@@ -50,15 +62,36 @@ G1(1)=h*sum(g1(1:n1,1));
 g1_norm(:,1)=g1(:,1)/G1(1);
 g2_norm(:,1)=g2(:,1)/G2(1);
 
+
+if strcmp(beta,'gaussian')
 % Transition probabilities have an age-dependency with Gaussian dist.
+
 tp1=@(a)Gaussian_density(a,C1,1);
 tp2=@(a)Gaussian_density(a,C2,1);
 
-%tp12=@(a)ones(size(a));
-%tp22=@(a)ones(size(a));
+f1=@(a)B1*tp1(a);
+f2=@(a)B2*tp2(a);
+
+end
+
+if strcmp(beta,'exponential')
+tp1=@(a)ones(size(a));
+tp2=@(a)ones(size(a));
 
 f1=@(a)B1*tp1(a);
 f2=@(a)B2*tp2(a);
+
+end
+
+if strcmp(beta,'inverse_gaussian')
+
+f1=inverse_Gaussian_tp3(ages1_fine,.08,.02);
+f2=inverse_Gaussian_tp3(ages2_fine,.08,.02);
+
+f1_coarse=f1(mod(ages1_fine,3)==1);
+f2_coarse=f2(mod(ages2_fine,3)==1);
+
+end
 
 %j for time
 %i1 and i2 for ages
@@ -67,11 +100,13 @@ for j=1:m-1
     %get population density at next time step for next age by integrating
     %one step along the characterisitc.
     for i1=1:n1-1
-        g1(i1+1,j+1)=g1(i1,j)*exp( -Simp_Rule(f1, 0, h, 10) );
+        f1_vector=f1((i1-1)*num_steps+1:i1*num_steps+1);
+        g1(i1+1,j+1)=g1(i1,j)*exp( -Simp_Rule_vector(f1_vector, 0, h, 4) );
     end
     
     for i2=1:n2-1
-        g2(i2+1,j+1)=g2(i2,j)*exp( -Simp_Rule(f2, 0, h, 10) );
+        f2_vector=f2((i2-1)*num_steps+1:i2*num_steps+1);
+        g2(i2+1,j+1)=g2(i2,j)*exp( -Simp_Rule_vector(f2_vector, 0, h, 4) );
     end
     
     %get density of individuals of age zero, by integrating across all ages.
@@ -80,8 +115,9 @@ for j=1:m-1
     G1(j+1)=h*sum(g1(2:n1,j+1));
     
     % At the end of G2, two new cells enter G1 (cell division)
-    g1(1,j+1)=2*B2*G2(j+1);
-    g2(1,j+1)=B1*G1(j+1);
+    %g1(1,j+1)=int_0^a1max(beta(a)g2(a,j)da)
+    g1(1,j+1)=2*Simp_Rule_vector(f1_coarse.*g2(:,j),h) ;
+    g2(1,j+1)=Simp_Rule_vector(f2_coarse.*g1(:,j),h);
     
     g1_norm(:,j+1)=g1(:,j+1)/(G1(j+1)+g1(1,j+1)*h);
     g2_norm(:,j+1)=g2(:,j+1)/(G2(j+1)+g2(1,j+1)*h);
