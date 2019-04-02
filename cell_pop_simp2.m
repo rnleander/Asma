@@ -101,12 +101,12 @@ for j=1:m-1
     %one step along the characterisitc.
     for i1=1:n1-1
         f1_vector=f1((i1-1)*num_steps+1:i1*num_steps+1);
-        g1(i1+1,j+1)=g1(i1,j)*exp( -Simp_Rule_vector(f1_vector, 0, h, 4) );
+        g1(i1+1,j+1)=g1(i1,j)*exp( -Simp_Rule_vector(f1_vector, 0, h_fine, 4) );
     end
     
     for i2=1:n2-1
         f2_vector=f2((i2-1)*num_steps+1:i2*num_steps+1);
-        g2(i2+1,j+1)=g2(i2,j)*exp( -Simp_Rule_vector(f2_vector, 0, h, 4) );
+        g2(i2+1,j+1)=g2(i2,j)*exp( -Simp_Rule_vector(f2_vector, 0, h_fine, 4) );
     end
     
     %get density of individuals of age zero, by integrating across all ages.
