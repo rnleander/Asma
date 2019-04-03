@@ -4,23 +4,21 @@ function [g1_norm, g2_norm] = cell_pop_simp2(a1max,a2max,T,beta)
 %cells that leave the second stage, divide, and their daughters enter the
 %first stage.
 
-eps=.01;
-
 
 Gaussian_density=@(a,mu,sigmasq)(1/(2*pi*sigmasq)^.5)*exp(-((a-mu).^2)/(2*sigmasq));
 
 h=.01;
 %gives num_steps age gridpoints for each age step when integrating along
-%characteristics. num_steps should be odd, to get an even number of grid
-%points.
+%characteristics.
+num_steps=3;
 hfine=.01/num_steps;
 
 %ages at which we approximate the population density
 ages1=0:h:a1max+T;
 ages2=0:h:a2max+T;
 
-ages1_fine=0:h:a1max+T;
-ages2_fine=0:h:a2max+T;
+ages1_fine=0:hfine:a1max+T;
+ages2_fine=0:hfine:a2max+T;
 
 mu1=4;
 mu2=2;
@@ -93,6 +91,19 @@ f2_coarse=f2(mod(ages2_fine,3)==1);
 
 end
 
+%get the integral of the trasition rates over each age interval
+int_f1=zeros(1,n1-1);
+int_f2=zeros(1,n2-1);
+for i1=1:n1-1
+        f1_vector=f1((i1-1)*num_steps+1:i1*num_steps+1);
+        int_f1(i1)=h_fine*trapz(f1_vector);
+end
+
+for i2=1:n2-1
+        f2_vector=f2((i2-1)*num_steps+1:i2*num_steps+1);
+        int_f2(i2)=h_fine*trapz(f2_vector);
+end
+
 %j for time
 %i1 and i2 for ages
 for j=1:m-1
@@ -100,13 +111,11 @@ for j=1:m-1
     %get population density at next time step for next age by integrating
     %one step along the characterisitc.
     for i1=1:n1-1
-        f1_vector=f1((i1-1)*num_steps+1:i1*num_steps+1);
-        g1(i1+1,j+1)=g1(i1,j)*exp( -Simp_Rule_vector(f1_vector, 0, h_fine, 4) );
+        g1(i1+1,j+1)=g1(i1,j)*exp( -int_f1(i1) );
     end
     
     for i2=1:n2-1
-        f2_vector=f2((i2-1)*num_steps+1:i2*num_steps+1);
-        g2(i2+1,j+1)=g2(i2,j)*exp( -Simp_Rule_vector(f2_vector, 0, h_fine, 4) );
+        g2(i2+1,j+1)=g2(i2,j)*exp( -int_f2(i2) );
     end
     
     %get density of individuals of age zero, by integrating across all ages.
@@ -116,8 +125,8 @@ for j=1:m-1
     
     % At the end of G2, two new cells enter G1 (cell division)
     %g1(1,j+1)=int_0^a1max(beta(a)g2(a,j)da)
-    g1(1,j+1)=2*Simp_Rule_vector(f1_coarse.*g2(:,j),h) ;
-    g2(1,j+1)=Simp_Rule_vector(f2_coarse.*g1(:,j),h);
+    g1(1,j+1)=2*h*trapz(f1_coarse.*g2(:,j)) ;
+    g2(1,j+1)=h*trapz(f2_coarse.*g1(:,j));
     
     g1_norm(:,j+1)=g1(:,j+1)/(G1(j+1)+g1(1,j+1)*h);
     g2_norm(:,j+1)=g2(:,j+1)/(G2(j+1)+g2(1,j+1)*h);

@@ -1,6 +1,9 @@
 function [int_ab] = Simp_Rule_vector(f,h)
 %f must have an even number of elements
-assert(mod(length(f),2)==1,'f is not of even length\n');
+if mod(length(f),2)==1
+    length(f)
+end
+assert(mod(length(f),2)==1,'f is not of even length');
 
 ulsum=length(f)/2;
 
