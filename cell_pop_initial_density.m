@@ -1,4 +1,4 @@
-function [init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,init_type)
+function [init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,h,init_type)
 
 %ages at which we approximate the population density
 ages1=0:h:a1max+T;

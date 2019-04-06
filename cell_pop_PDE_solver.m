@@ -69,8 +69,8 @@ for j=1:m-1
     
     % At the end of G2, two new cells enter G1 (cell division)
     %g1(1,j+1)=int_0^a1max(beta(a)g2(a,j)da)
-    g1(1,j+1)=2*h*trapz(beta1_coarse.*g2(:,j)) ;
-    g2(1,j+1)=h*trapz(beta2_coarse.*g1(:,j));
+    g1(1,j+1)=2*h*trapz(beta1_coarse'.*g2(:,j)) ;
+    g2(1,j+1)=h*trapz(beta2_coarse'.*g1(:,j));
     
     g1_norm(:,j+1)=g1(:,j+1)/(G1(j+1)+g1(1,j+1)*h);
     g2_norm(:,j+1)=g2(:,j+1)/(G2(j+1)+g2(1,j+1)*h);

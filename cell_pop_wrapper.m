@@ -15,7 +15,7 @@ hfine=h/num_steps;
 [beta1, beta2] = cell_pop_beta(a1max,a2max,T,hfine,beta);
 
 %get initial population densities
-[init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,init_type);
+[init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,h,init_type);
 
 %times for plotting;
 t=0:h:T;
