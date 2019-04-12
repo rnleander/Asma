@@ -41,7 +41,7 @@ for row=1:size(A,1)
     X(row,2) = g1_time(row);
     X(row,3) = g2_time(row);
     
-    life_time(row) = g1_time(row)+g2_time(row);
+    life_time(row) = g1_time(row);
     remaining_time(row) = maxtime-birthtime(row);
     
     lifetime_deficit(row) = remaining_time(row)-life_time(row);
@@ -169,15 +169,24 @@ for time=0:h:120
     g2_B(idx)=g2_count_B;
     idx=idx+1;
     hold off;
-    plot(t,100*g1_A./(g1_A+g2_A), '-b');
+    total_pop=(g1_A + g2_A + g1_B + g2_B);
+    total_g1=(g1_A + g1_B);
+    total_g2=(g2_A + g2_B);
+    total_popA=(g1_A + g2_A);
+    total_popB=(g1_B + g2_B);
+    plot(t,100*g1_A./total_pop, '-b');
     hold on;
-    plot(t,100*g2_A./(g1_A+g2_A), '-r');
-    plot(t,100*g1_B./(g1_B+g2_B), '--b');
-    plot(t,100*g2_B./(g1_B+g2_B), '--r');
+    plot(t,100*g2_A./total_pop, '-r');
+    plot(t,100*g1_B./total_pop, '--b');
+    plot(t,100*g2_B./total_pop, '--r');
+    plot(t,100*total_g1./total_pop, '-*b');
+    plot(t,100*total_g2./total_pop, '-*r');
+    plot(t,100*total_popA./total_pop, '-g');
+    plot(t,100*total_popB./total_pop, '--g');
     title('Percent of FUCCI cells in G2 phase');
     xlabel('Time (hrs)');
     ylabel('Percentage');
-    legend('% G1 Population A','% G2 Population A','% G1 Population B','%G2 Population B')
+    legend('% G1 Population A','% G2 Population A','% G1 Population B','% G2 Population B','% G1 Total','% G2 Total','% Population A','% Population B')
     drawnow;
 end
 
