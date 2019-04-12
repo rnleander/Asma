@@ -18,9 +18,13 @@ sigmasq2=1.9;
 % Set the initial populations
 init_pop1=Gaussian_density(ages1, mu1, sigmasq1)*10^(-2);
 init_pop1(ages1>a1max)=0;
-init_pop1=G1G2ratio*init_pop1;
+G1tot = cdf('Normal',a1max,mu1,sigmasq1^.5); 
+
 init_pop2=Gaussian_density(ages2,mu2, sigmasq2)*10^(-2);
 init_pop2(ages2>a2max)=0;
+G2tot = cdf('Normal',a2max,mu2,sigmasq2^.5); 
+
+init_pop1=init_pop1*G1G2ratio*G2tot/G1tot;
 
 end
 

@@ -3,6 +3,7 @@ function [g1_norm, g2_norm] = cell_pop_wrapper(a1max,a2max,T,beta,init_type)
 %cells that leave the first stage enter the second stage.
 %cells that leave the second stage, divide, and their daughters enter the
 %first stage.
+G1G2ratio=1/4;
 
 h=.01;
 
@@ -15,7 +16,7 @@ hfine=h/num_steps;
 [beta1, beta2] = cell_pop_beta(a1max,a2max,T,hfine,beta);
 
 %get initial population densities
-[init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,h,init_type);
+[init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,h,init_type,G1G2ratio);
 
 %times for plotting;
 t=0:h:T;
