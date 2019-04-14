@@ -3,6 +3,7 @@ function y = inverse_Gaussian_tp6(a,m,s)
 %interpolation
 tic;
 clf;
+figure;
 hold on;
 error_threshold = 0.001;
 min_a = min(a);
@@ -43,6 +44,8 @@ while true
     Legend{idx}=sprintf("n=%d error=%f", num_knots, error);
     fprintf("L2 distance between steps is %f\n\n", error);
     plot(a, new_interpolant);
+    xlabel('time (hrs)');
+    ylabel('Transition rate');
     title("Interpolation with n knots");
     legend(Legend);
     drawnow;

@@ -49,8 +49,8 @@ end
 
 if strcmp(beta,'inverse_gaussian')
 
-    beta1=inverse_Gaussian_tp3(ages1_fine,mu1,sigma1);
-    beta2=inverse_Gaussian_tp3(ages2_fine,mu2,sigma2);
+    beta1=inverse_Gaussian_tp6(ages1_fine,mu1,sigma1);
+    beta2=inverse_Gaussian_tp6(ages2_fine,mu2,sigma2);
 
 
 end
