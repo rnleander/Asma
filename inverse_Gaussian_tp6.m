@@ -5,7 +5,7 @@ tic;
 clf;
 figure;
 hold on;
-error_threshold = 0.001;
+error_threshold = 0.1;
 min_a = min(a);
 max_a = max(a);
 num_a = size(a,2);
