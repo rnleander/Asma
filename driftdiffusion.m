@@ -1,9 +1,37 @@
-function [i, restrictionPoint] = driftdiffusion(startI, generation)
+function [i, restrictionPoint] = driftdiffusion(startI,generation,h)
 
-thresholdX = 100;
-thresholdY = 100;
+thresholdX = 1;
+thresholdY = 1;
 checkpoint = 0;
-diffuse_const=1;
+
+%mu1=.25;
+%sigma1=1;
+%mu2=.064;
+%sigma2=.031;
+
+diffuse_const1=1;
+drift_const1=.25;
+diffuse_const2=.031;
+drift_const2=.064;
+
+%diffuse_const1=1;
+%drift_const1=1;
+%diffuse_const2=1;
+%drift_const2=1;
+
+%parameters are such that time is measured in hours
+%timestep=h 
+
+%mu1=2;
+%mu2=8;
+%sigmasq1=8;
+%sigmasq2=1.9;
+
+avg_age1=2;
+avg_age2=8;
+stnd_dev1=8^.5;
+stnd_dev2=1.9^.5;
+
 
 xStart=0;
 
@@ -19,13 +47,20 @@ stop = 0;
 percentG1 = 0.3;
 
 if(generation == 0)
-    %[myMin, age] = min(abs(rand(1)-invgcdf(0:0.1:50,1,0.5)));
     if(rand(1) > percentG1)
+        age=normrnd(avg_age2,stnd_dev2);
+        if age<0
+            age=0;
+        end
         checkpoint=1;
         restrictionPoint = i;
-        Y=rand(1)*100;
+        Y(i)=normrnd(drift_const2*age,diffuse_const2*(age)^.5);
     else
-        X=rand(1)*100;
+        age=normrnd(avg_age1,stnd_dev1);
+        if age<0
+            age=0;
+        end
+        X(i)=normrnd(drift_const1*age,diffuse_const1*(age)^.5);
     end 
 end
 
@@ -34,26 +69,27 @@ hold on;
 while ~stop
     i=i+1;
     if checkpoint == 0
-        X(i)= X(i-1) + diffuse_const + round(1*normrnd(0,1));
-        Y(i)= Y(i-1) + round(normrnd(0,1));
+        X(i)= X(i-1) + drift_const1*h + diffuse_const1*normrnd(0,h);
+        Y(i)= NaN;
     end
     if checkpoint == 1
-        X(i)= X(i-1) + round(normrnd(0,1));
-        Y(i)= Y(i-1) + diffuse_const + round(1*normrnd(0,1));
+        X(i)= NaN;
+        Y(i)= Y(i-1) + drift_const2*h + diffuse_const2*normrnd(0,h);
     end
     
     if checkpoint == 0 && X(i) > thresholdX
         checkpoint = 1;
         restrictionPoint = i;
-        %Y(i)=0;
+        Y(i)=0;
     end
     if checkpoint == 1 && Y(i) > thresholdY
        %checkpoint = 0;
-       plot(i,Y(i),'X','MarkerSize', 10, 'linewidth', 2);
+       %plot(i,Y(i),'X','MarkerSize', 10, 'linewidth', 2);
        stop = 1;
     end
 end
-plot(X,'color', [1-generation*0.2,0,0,0.2]);
-plot(Y,'color', [0,1-generation*0.2,0,0.2]);
+plot(X,'color', [1,0,0,0.2]);
+plot(Y,'color', [0,1,0,0.2]);
+drawnow();
 xEnd = X(end);
 end
