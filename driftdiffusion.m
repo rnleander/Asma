@@ -1,4 +1,4 @@
-function [i, restrictionPoint] = driftdiffusion(startI,generation,h)
+function [i, restrictionPoint] = driftdiffusion(startI,generation,h,plotDDT)
 
 thresholdX = 1;
 thresholdY = 1;
@@ -88,8 +88,12 @@ while ~stop
        stop = 1;
     end
 end
-plot(X,'color', [1,0,0,0.2]);
-plot(Y,'color', [0,1,0,0.2]);
-drawnow();
+if(plotDDT~=0)
+    plot(X,'color', [1,0,0,0.2]);
+    plot(Y,'color', [0,1,0,0.2]);
+    if(plotDDT==2)
+        drawnow();
+    end
+end
 xEnd = X(end);
 end
