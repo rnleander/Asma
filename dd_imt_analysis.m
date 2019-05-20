@@ -2,8 +2,8 @@ clear;
 clf;
 
 h=.01;
-numAncestors = 2^12 % slow
-%numAncestors = 2^8 % fast
+%numAncestors = 2^12 % slow
+numAncestors = 2^8 % fast
 maxGenerations = 7 % maximum number of descendent generations (not including root ancestor)
 plotDDT = 0; % 0 disable, 1 deferred plot, 2 realtime plot
 noGrowth = 1; % if 1, each cell has only a single descendent
@@ -72,12 +72,12 @@ for cellIdx=1:numAllCells
     thisCell = allCells{cellIdx};
     cutdownBeginning = floor(thisCell.begin/cutdown);
     for time=floor(thisCell.begin/cutdown)+1:floor(thisCell.restrictionPoint/cutdown)
-       age = time - cutdownBeginning;
-       G1timeAge(time, age) = G1timeAge(time, age) + 1;
+       g1age = time - cutdownBeginning;
+       G1timeAge(time, g1age) = G1timeAge(time, g1age) + 1;
     end
     for time=floor(thisCell.restrictionPoint/cutdown)+1:floor(thisCell.end/cutdown)
-       age = time - cutdownBeginning;
-       G2timeAge(time, age) = G2timeAge(time, age) + 1;
+       g2age = time - floor(thisCell.restrictionPoint/cutdown);
+       G2timeAge(time, g2age) = G2timeAge(time, g2age) + 1;
     end
     if(0==mod(cellIdx,chkStep))
         fprintf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
