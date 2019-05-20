@@ -62,16 +62,16 @@ for j=1:m-1
         g2(i2+1,j+1)=g2(i2,j)*exp( -int_beta2(i2) );
     end
     
-    %get density of individuals of age zero, by integrating across all ages.
-    %here the integral is approximated as a right-hand Riemann sum.
-    G2(j+1)=h*sum(g2(2:n2,j+1));
-    G1(j+1)=h*sum(g1(2:n1,j+1));
-    
     % At the end of G2, two new cells enter G1 (cell division)
     %g1(1,j+1)=int_0^a1max(beta(a)g2(a,j)da)
     g1(1,j+1)=2*h*trapz(beta2_coarse'.*g2(:,j)) ;
     g2(1,j+1)=h*trapz(beta1_coarse'.*g1(:,j));
     
-    g1_norm(:,j+1)=g1(:,j+1)/(G1(j+1)+g1(1,j+1)*h);
-    g2_norm(:,j+1)=g2(:,j+1)/(G2(j+1)+g2(1,j+1)*h);
+    %get number of cells in each class by integrating across all ages.
+    %here the integral is approximated as a right-hand Riemann sum.
+    G2(j+1)=h*sum(g2(1:n2,j+1));
+    G1(j+1)=h*sum(g1(1:n1,j+1));
+    
+    g1_norm(:,j+1)=g1(:,j+1)/G1(j+1);
+    g2_norm(:,j+1)=g2(:,j+1)/G2(j+1);
 end
