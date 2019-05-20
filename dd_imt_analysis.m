@@ -86,9 +86,9 @@ for cellIdx=1:numAllCells
 end
 % Normalize
 for t=1:floor(maxT/cutdown)
-    totalTimeAgeIntegral = sum(G1timeAge(t,:)+G2timeAge(t,:));
-    G1timeAgeNorm(t,:) = G1timeAge(t,:)./totalTimeAgeIntegral;
-    G2timeAgeNorm(t,:) = G2timeAge(t,:)./totalTimeAgeIntegral;
+    %totalTimeAgeIntegral = sum(G1timeAge(t,:)+G2timeAge(t,:));
+    G1timeAgeNorm(t,:) = G1timeAge(t,:)./sum(G1timeAge(t,:));
+    G2timeAgeNorm(t,:) = G2timeAge(t,:)./sum(G2timeAge(t,:));
 end
 % Gaussian blur to hide discrete noise
 for i=1:1
