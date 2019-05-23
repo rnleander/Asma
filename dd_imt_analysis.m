@@ -1,17 +1,20 @@
 clear;
 clf;
+startTime = tic;
 
 h=.01;
-%numAncestors = 2^12 % slow
-numAncestors = 2^8 % fast
+numAncestors = 2^14 % slow
+%numAncestors = 2^8 % fast
 maxGenerations = 7 % maximum number of descendent generations (not including root ancestor)
 plotDDT = 0; % 0 disable, 1 deferred plot, 2 realtime plot
 noGrowth = 1; % if 1, each cell has only a single descendent
 cutdown=25; % Reduce the resolution of the G1 and G2 time/age plots by this factor
+smooth = 1; % Use gaussian convolutional smoothing
 
 
 % Run the simulation for a number of initial ancestors cells and collect a
 % list of those cells
+tic
 if(plotDDT~=0)
     set(figure,'WindowStyle','docked')
     hold on;
@@ -27,16 +30,20 @@ end
 if(plotDDT==1)
     drawnow;
 end
+toc
+
+% Find the maximum time, maximum age and plot the IMT distribution
+tic
+fprintf('\nGathering cells and computing statistics\n');
 allCells={};
 for k=1:numAncestors
     allCells = cat(2,allCells,descendents{k});
 end
 numAllCells = size(allCells,2)
-
-
-% Find the maximum time, maximum age and plot the IMT distribution
 maxT = 0;
 maxAge = 0;
+maxG1duration = 0;
+maxG2duration = 0;
 imt=[];
 for cellIdx=1:numAllCells
     thisCell = allCells{cellIdx};
@@ -47,6 +54,14 @@ for cellIdx=1:numAllCells
     if(age > maxAge)
         maxAge = age;
     end
+    G1duration = thisCell.restrictionPoint - thisCell.begin;
+    if(G1duration > maxG1duration)
+        maxG1duration = G1duration;
+    end
+    G2duration = thisCell.end - thisCell.restrictionPoint;
+    if(G2duration > maxG2duration)
+        maxG2duration = G2duration;
+    end
     imt(cellIdx) = thisCell.imt;
 end
 imt=imt*h;
@@ -56,13 +71,21 @@ title('IMT Distribution');
 xlabel('Time (hrs)');
 ylabel('Density');
 drawnow;
-
+maxT
+maxAge
+maxG1duration
+maxG2duration
+toc
 
 % Plot the G1 and G2 percentages as a function of time and age
-G1timeAge = zeros(floor(maxT/cutdown)+1,floor(maxAge/cutdown)+1);
-G1timeAgeNorm = zeros(floor(maxT/cutdown)+1,floor(maxAge/cutdown)+1);
-G2timeAge = zeros(floor(maxT/cutdown)+1,floor(maxAge/cutdown)+1);
-G2timeAgeNorm = zeros(floor(maxT/cutdown)+1,floor(maxAge/cutdown)+1);
+tic
+tRange = floor(maxT/cutdown)
+g1AgeRange = floor(maxG1duration/cutdown)
+g2AgeRange = floor(maxG2duration/cutdown)
+G1timeAge = zeros(tRange+1,g1AgeRange+1);
+G1timeAgeNorm = zeros(tRange+1,g1AgeRange+1);
+G2timeAge = zeros(tRange+1,g2AgeRange+1);
+G2timeAgeNorm = zeros(tRange+1,g2AgeRange+1);
 chkStep=round(numAllCells/50);
 fprintf("Surface  0.00 percent complete\n");
 % Accumulate krockner deltas for each cell life history for G1 and G2
@@ -91,12 +114,14 @@ for t=1:floor(maxT/cutdown)
     G2timeAgeNorm(t,:) = G2timeAge(t,:)./sum(G2timeAge(t,:));
 end
 % Gaussian blur to hide discrete noise
-for i=1:1
-    G1timeAgeNorm = imgaussfilt(G1timeAgeNorm,2);
-    G2timeAgeNorm = imgaussfilt(G2timeAgeNorm,2);
+if(smooth == 1)
+    for i=1:1
+        G1timeAgeNorm = imgaussfilt(G1timeAgeNorm,2);
+        G2timeAgeNorm = imgaussfilt(G2timeAgeNorm,2);
+    end
 end
 % Make plots for G1 and G2
-[X,Y] = meshgrid(0:h*cutdown:maxT*h,0:h*cutdown:maxAge*h);
+[X,Y] = meshgrid(0:h*cutdown:maxT*h,0:h*cutdown:maxG1duration*h);
 set(figure,'WindowStyle','docked');
 surf(X,Y,G1timeAgeNorm','EdgeColor','none');
 shading interp;
@@ -105,6 +130,7 @@ xlabel('time (hrs)');
 ylabel('age (hrs)');
 zlabel('G1 Norm');
 drawnow;
+[X,Y] = meshgrid(0:h*cutdown:maxT*h,0:h*cutdown:maxG2duration*h);
 set(figure,'WindowStyle','docked');
 surf(X,Y,G2timeAgeNorm','EdgeColor','none');
 shading interp;
@@ -113,14 +139,15 @@ xlabel('time (hrs)');
 ylabel('age (hrs)');
 zlabel('G2 Norm');
 drawnow;
-
+toc
 
 % Plot the G1 and G2 fractions as a function of time
+tic
 set(figure,'WindowStyle','docked')
 g1 = zeros(1,maxT);
 g2 = zeros(1,maxT);
 chkStep=round(numAllCells/50);
-fprintf("Counting  0.00 percent complete\n");
+fprintf("\nCounting  0.00 percent complete\n");
 for cellIdx=1:numAllCells
     thisCell = allCells{cellIdx};
     for i=thisCell.begin+1:thisCell.restrictionPoint
@@ -145,6 +172,6 @@ plot(0:h:(maxT-1)*h, g1./alive,'r')
 hold on;
 plot(0:h:(maxT-1)*h, g2./alive,'b')
 drawnow;
+toc
 
-
-
+fprintf('\nTotal '); toc(startTime);
