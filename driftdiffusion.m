@@ -1,4 +1,4 @@
-function [i, restrictionPoint] = driftdiffusion(startI,generation,h,plotDDT)
+function [i, restrictionPoint] = driftdiffusion(startI,generation,h,plotDDT,startingOffset)
 
 thresholdX = 1;
 thresholdY = 1;
@@ -49,16 +49,16 @@ percentG1 = 0.3;
 if(generation == 0)
     if(rand(1) > percentG1)
         age=normrnd(avg_age2,stnd_dev2);
-        if age<0
-            age=0;
-        end
         checkpoint=1;
         restrictionPoint = i;
+        if age<-startingOffset
+            age=-startingOffset;
+        end
         Y(i)=normrnd(drift_const2*age,diffuse_const2*(age)^.5);
     else
         age=normrnd(avg_age1,stnd_dev1);
-        if age<0
-            age=0;
+        if age<-startingOffset
+            age=-startingOffset;
         end
         X(i)=normrnd(drift_const1*age,diffuse_const1*(age)^.5);
     end 
