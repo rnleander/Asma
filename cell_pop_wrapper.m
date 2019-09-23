@@ -53,7 +53,7 @@ ages2=0:h:a2max+T;
     zlabel('g1_norm');
     title('G1 fraction as a function of time and age');
     shading interp
-    saveas(gcf,'G1')
+    saveas(gcf,'G1');
     hold off
       
 %     surf(t,ages2,g2_norm)
@@ -79,7 +79,7 @@ ages2=0:h:a2max+T;
     zlabel('g2_norm');
     title('G2 fraction as a function of time and age');
     shading interp
-    saveas(gcf,'G2')
+    saveas(gcf,'G2');
     hold off
     
     figure

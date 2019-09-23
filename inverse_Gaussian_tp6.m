@@ -3,7 +3,7 @@ function y = inverse_Gaussian_tp6(a,m,s)
 %interpolation
 tic;
 clf;
-figure;
+set(figure, 'WindowStyle', 'docked')
 hold on;
 error_threshold = 0.1;
 min_a = min(a);

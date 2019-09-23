@@ -28,6 +28,37 @@ init_pop1=init_pop1*G1G2ratio*G2tot/G1tot;
 
 end
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ADD NEW INIT TYPE STABLE_INVG and STABLE_EXP THAT ALLS STABLE_AGE_DIST
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if strcmp(init_type, 'stable_invg')
+    
+    % THESE VALUES WERE STOLEN FROM CELL_POP_BETA WHICH WAS KINDA HIDDEN
+    
+    % NOW WE HAVE HARD CODED THESE VALUES IN TWO DIFFERENT PLACES
+    
+    % THIS IS BAD
+    
+    mu1=.25;
+    sigma1=1;
+    mu2=.064;
+    sigma2=.031;
+
+    g_0 = 1;
+	init_pop1 = stable_age_dist(g_0, mu1, sigma1, mu2, sigma2, h, a1max+T);
+    
+    beta_g = inverse_Gaussian_tp6(ages1, mu1, sigma1);
+    
+    f_0 = trapz((beta_g').*init_pop1)*h;
+    
+    init_pop2 = stable_age_dist(f_0, mu2, sigma2, mu1, sigma1, h, a1max+T);
+    
+    
+end
+
+
 if strcmp(init_type,'uniform')
     
     init_pop1=zeros(size(ages1));
