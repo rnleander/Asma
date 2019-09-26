@@ -40,7 +40,7 @@ if strcmp(beta,'exponential')
     lambda1=1/mean1;
     lambda2=1/mean2;
     beta1=ones(size(ages1_fine));
-    beta2=ones(ages2_fine);
+    beta2=ones(size(ages2_fine));
 
     beta1=lambda1*beta1;
     beta2=lambda2*beta2;
@@ -49,8 +49,8 @@ end
 
 if strcmp(beta,'inverse_gaussian')
 
-    beta1=inverse_Gaussian_tp6(ages1_fine,mu1,sigma1);
-    beta2=inverse_Gaussian_tp6(ages2_fine,mu2,sigma2);
+    beta1=inverse_Gaussian_tp6(ages1_fine,mu1,sigma1, "g");
+    beta2=inverse_Gaussian_tp6(ages2_fine,mu2,sigma2, "f");
 
 
 end

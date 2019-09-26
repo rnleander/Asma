@@ -6,20 +6,20 @@
 % TEST PROCEDURE:
 % cell_pop_wrapper(30,30,100,'inverse_gaussian','gaussian')
 % cell_pop_wrapper(30,30,100,'inverse_gaussian','stable_invg')
-function g_vec_invgcdf = stable_age_dist(g_0, m_g, s_g, m_f, s_f, h, t_max)
+function g_vec = stable_age_dist(dist_type, g_0, m_g, s_g, m_f, s_f, h, t_max)
 %t_max = 50
 %h = 0.1
 %m_g = 0.1
 %s_g = 0.08
 %g_0 = 1
 
-c = ivg_model_c(1/sqrt(m_g), 1/m_g, sqrt(1/m_f), 1/m_f)
+
 s_mesh = 0:h:t_max;
 
 
-figure
-set(gcf, 'WindowStyle', 'docked')
-hold on
+% figure
+% set(gcf, 'WindowStyle', 'docked')
+% hold on
 
 
 % % This is a numerical method for finding the stable distribution
@@ -53,23 +53,39 @@ hold on
 % plot(s_mesh, g_vec_analytic);
 % %plot(s_mesh, zero_patch_vector(g_vec_analytic))
 
-
-% Second analytic method
-g_invgcdf = @(a, c, m, s) g_0*exp(-c*a)*(1-invgcdf(a, m, s))
-g_vec_invgcdf=zeros(size(s_mesh,2),1);
-idx=1;
-for a=s_mesh
-    g = g_invgcdf(a,c, m_g, s_g);
-    if ~isequal(size(g),[1, 1])
-        fprintf("OH NOES!\n");
-    end   
-    g_vec_invgcdf(idx) = g;
-    idx = idx + 1;
+if strcmp(dist_type, 'invg')
+    % Second analytic method
+    c = ivg_model_c(1/(s_g^2), 1/m_g, 1/(s_f^2), 1/m_f);
+    g_invgcdf = @(a, c, m, s) g_0*exp(-c*a)*(1-invgcdf(a, m, s));
+    g_vec=zeros(size(s_mesh,2),1);
+    idx=1;
+    for a=s_mesh
+        g = g_invgcdf(a,c, m_g, s_g);
+        if ~isequal(size(g),[1, 1])
+            fprintf("OH NOES!\n");
+        end   
+        g_vec(idx) = g;
+        idx = idx + 1;
+    end
+    %trapz(g_vec_invgcdf)*h
+    %plot(s_mesh, g_vec_invgcdf);
+    %plot(s_mesh, zero_patch_vector(g_vec_invgcdf))
 end
-trapz(g_vec_invgcdf)*h
-plot(s_mesh, g_vec_invgcdf);
-%plot(s_mesh, zero_patch_vector(g_vec_invgcdf))
 
+if strcmp(dist_type, 'exp')
+    [beta_g, beta_f] = cell_pop_beta(0,0,t_max,h,'exponential');
+    c = exp_model_c(beta_g, beta_f);
+    g_dist = makedist('Exponential','mu',1/m_g);
+    
+    g_exp = @(a, c) g_0*exp(-c*a)*(1-cdf(g_dist,a));
+    g_vec = zeros(size(s_mesh,2),1);
+    idx=1;
+    for a=s_mesh
+        g = g_exp(a, c);
+        g_vec(idx) = g;
+        idx = idx + 1; 
+    end
+end
 
-hold off
+%hold off
 end

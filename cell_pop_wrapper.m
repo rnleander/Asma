@@ -3,7 +3,20 @@ function [g1_norm, g2_norm] = cell_pop_wrapper(a1max,a2max,T,beta,init_type)
 %cells that leave the first stage enter the second stage.
 %cells that leave the second stage, divide, and their daughters enter the
 %first stage.
-G1G2ratio=1/4;
+
+close all;
+set(gcf, 'WindowStyle', 'docked');
+
+
+%G1G2ratio=1/4;
+if strcmp(beta, 'inverse_gaussian')
+    G1G2ratio=0.286475;
+elseif strcmp(beta, 'exponential')
+    G1G2ratio=0.434779;
+else
+    fprintf("ERROR: invalid distribution, please choose inverse_gaussian or exponential\n");
+    return;
+end
 
 h=.01;
 
@@ -39,22 +52,25 @@ ages2=0:h:a2max+T;
 %     %save(G1.mat,gcf,'-v7.3')
 %     hold off
 
-    figure
-    hold off
+    figure;
+    set(gcf, 'WindowStyle', 'docked');
+    %nexttile;
+    hold off;
     [Xq,Yq] = meshgrid(0:T/1000:T);
     %Xq = 0:T/1000:T;
     %Yq = 0:(a1max+T)/1000:a1max+T;
     Vq = interp2(t,ages1,g1_norm,Xq,Yq);
     surf(Xq,Yq,Vq);
-    hold on
+    hold on;
     axis([0 T 0 T]);
     xlabel('time (hrs)');
     ylabel('age (hrs)');
-    zlabel('g1_norm');
-    title('G1 fraction as a function of time and age');
-    shading interp
+    zlabel('g age density');
+    title('g age density through time');
+    shading interp;
+    view([90, 90, 90]);
     saveas(gcf,'G1');
-    hold off
+    hold off;
       
 %     surf(t,ages2,g2_norm)
 %     hold on
@@ -66,32 +82,44 @@ ages2=0:h:a2max+T;
 %     saveas(gcf,'G2')
 %     %save(G2.mat,gcf,'-v7.3')
 
-    figure
+    figure;
+    set(gcf, 'WindowStyle', 'docked');
+    %nexttile;
     [Xq,Yq] = meshgrid(0:T/1000:T);
     %Xq = 0:T/1000:T;
     %Yq = 0:(a2max+T)/1000:a2max+T;
     Vq = interp2(t,ages2,g2_norm,Xq,Yq);
     surf(Xq,Yq,Vq);
-    hold on
+    hold on;
     axis([0 T 0 T]);
     xlabel('time (hrs)');
     ylabel('age (hrs)');
-    zlabel('g2_norm');
-    title('G2 fraction as a function of time and age');
-    shading interp
+    zlabel('f age density');
+    title('f age density through time');
+    shading interp;
+    view([90, 90, 90]);
     saveas(gcf,'G2');
-    hold off
+    hold off;
     
-    figure
-    hold off
+    figure;
+    set(gcf, 'WindowStyle', 'docked');
+    %nexttile;
+    hold off;
     plot(t,G1./(G1+G2),'g','LineWidth',4);
-    hold on 
+    hold on ;
     plot(t,G2./(G1+G2),'r','LineWidth',4);
-    xlabel('time (hrs)');
-    ylabel('norm');
-    title('G1 and G2 fractions as a function of time');
-    legend('G1','G2');
+    xlabel('Time (hrs)');
+    ylabel('Norm');
+    ylim([0, 1]);
+    title('g and f fractions as a function of time');
+    legend('g','f');
+    
     saveas(gcf,'fractions_G1_G2');
 
+    lastg1 = G1(end);
+    lastg2 = G2(end);
+    ratio = lastg1/lastg2;
+    
+    fprintf("End of experiment g1/g2 ratio: %f\n", ratio);
 end
 
