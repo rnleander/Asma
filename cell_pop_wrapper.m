@@ -120,6 +120,25 @@ ages2=0:h:a2max+T;
     lastg2 = G2(end);
     ratio = lastg1/lastg2;
     
+    fraction = lastg1/(lastg1+lastg2);
+    
     fprintf("End of experiment g1/g2 ratio: %f\n", ratio);
+    fprintf("End of experiment g1/(g1+g2) fraction: %f\n", fraction);
+    
+    total_population = G1+G2;
+    
+    expfit = fit(t(:), total_population(:), 'exp1')
+    
+    figure;
+    set(gcf, 'WindowStyle', 'docked');
+    plot(t, total_population);
+    hold on;
+    plot(t, feval(expfit, t), '--');
+    title('Population over time with exponential growth fit');
+    xlabel('Time (hrs)');
+    ylabel('Population');
+    legend('Experimental', 'Fit');
+    
+    
 end
 

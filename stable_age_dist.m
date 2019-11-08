@@ -55,7 +55,7 @@ s_mesh = 0:h:t_max;
 
 if strcmp(dist_type, 'invg')
     % Second analytic method
-    c = ivg_model_c(1/(s_g^2), 1/m_g, 1/(s_f^2), 1/m_f);
+    c = ivg_model_c(1/(s_g^2), 1/m_g, 1/(s_f^2), 1/m_f)
     g_invgcdf = @(a, c, m, s) g_0*exp(-c*a)*(1-invgcdf(a, m, s));
     g_vec=zeros(size(s_mesh,2),1);
     idx=1;
@@ -74,7 +74,7 @@ end
 
 if strcmp(dist_type, 'exp')
     [beta_g, beta_f] = cell_pop_beta(0,0,t_max,h,'exponential');
-    c = exp_model_c(beta_g, beta_f);
+    c = exp_model_c(beta_g, beta_f)
     g_dist = makedist('Exponential','mu',1/m_g);
     
     g_exp = @(a, c) g_0*exp(-c*a)*(1-cdf(g_dist,a));
