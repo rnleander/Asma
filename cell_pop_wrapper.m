@@ -1,4 +1,4 @@
-function [g1_norm, g2_norm] = cell_pop_wrapper(a1max,a2max,T,beta,init_type)
+function [g1_norm, g2_norm, growth_rate_fit] = cell_pop_wrapper(a1max,a2max,T,beta,init_type)
 %B1 and B2 are the per capita rates of leaving a given stage.
 %cells that leave the first stage enter the second stage.
 %cells that leave the second stage, divide, and their daughters enter the
@@ -7,6 +7,7 @@ function [g1_norm, g2_norm] = cell_pop_wrapper(a1max,a2max,T,beta,init_type)
 close all;
 set(gcf, 'WindowStyle', 'docked');
 
+fprintf("model %s init_type %s\n", beta, init_type);
 
 %G1G2ratio=1/4;
 if strcmp(beta, 'inverse_gaussian')
@@ -26,10 +27,10 @@ num_steps=3;
 hfine=h/num_steps;
 
 %get transition rates for each stage on a fine grid.
-[beta1, beta2] = cell_pop_beta(a1max,a2max,T,hfine,beta);
+[beta1, beta2] = cell_pop_beta(a1max,a2max,T,hfine,beta,init_type);
 
 %get initial population densities
-[init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,h,init_type,G1G2ratio);
+[init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,h,init_type,G1G2ratio,beta);
 
 %times for plotting;
 t=0:h:T;
@@ -69,8 +70,10 @@ ages2=0:h:a2max+T;
     title('g age density through time');
     shading interp;
     view([90, 90, 90]);
-    saveas(gcf,'G1');
+    %saveas(gcf,'G1');
     hold off;
+    plot_filename = sprintf("figures/%s_%s_g_age_structure", beta, init_type);
+    saveas(gcf, plot_filename);
       
 %     surf(t,ages2,g2_norm)
 %     hold on
@@ -98,23 +101,26 @@ ages2=0:h:a2max+T;
     title('f age density through time');
     shading interp;
     view([90, 90, 90]);
-    saveas(gcf,'G2');
+    %saveas(gcf,'G2');
     hold off;
+    plot_filename = sprintf("figures/%s_%s_f_age_structure", beta, init_type);
+    saveas(gcf, plot_filename);
     
     figure;
     set(gcf, 'WindowStyle', 'docked');
     %nexttile;
     hold off;
-    plot(t,G1./(G1+G2),'g','LineWidth',4);
+    plot(t,G1./(G1+G2));
     hold on ;
-    plot(t,G2./(G1+G2),'r','LineWidth',4);
+    plot(t,G2./(G1+G2));
     xlabel('Time (hrs)');
     ylabel('Norm');
     ylim([0, 1]);
     title('g and f fractions as a function of time');
     legend('g','f');
-    
-    saveas(gcf,'fractions_G1_G2');
+    plot_filename = sprintf("figures/%s_%s_gfratio", beta, init_type);
+    saveas(gcf, plot_filename);
+    %saveas(gcf,'fractions_G1_G2');
 
     lastg1 = G1(end);
     lastg2 = G2(end);
@@ -127,7 +133,10 @@ ages2=0:h:a2max+T;
     
     total_population = G1+G2;
     
-    expfit = fit(t(:), total_population(:), 'exp1')
+    expfit = fit(t(:), total_population(:), 'exp1');
+    
+    growth_rate_fit = expfit.b;
+    fprintf("growth rate fit %f", growth_rate_fit);
     
     figure;
     set(gcf, 'WindowStyle', 'docked');
@@ -138,7 +147,9 @@ ages2=0:h:a2max+T;
     xlabel('Time (hrs)');
     ylabel('Population');
     legend('Experimental', 'Fit');
+    plot_filename = sprintf("figures/%s_%s_growthrate", beta, init_type);
+    saveas(gcf, plot_filename);
     
-    
+    fprintf("\n\n");
 end
 
