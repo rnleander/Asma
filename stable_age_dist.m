@@ -6,7 +6,7 @@
 % TEST PROCEDURE:
 % cell_pop_wrapper(30,30,100,'inverse_gaussian','gaussian')
 % cell_pop_wrapper(30,30,100,'inverse_gaussian','stable_invg')
-function g_vec = stable_age_dist(dist_type, g_0, m_g, s_g, m_f, s_f, h, t_max)
+function g_vec = stable_age_dist(dist_type, g_0, m_g, s_g, m_f, s_f, h, t_max, init_type,mu1,sigma1,mu2,sigma2)
 %t_max = 50
 %h = 0.1
 %m_g = 0.1
@@ -74,7 +74,7 @@ if strcmp(dist_type, 'invg')
 end
 
 if strcmp(dist_type, 'exp')
-    [beta_g, beta_f] = cell_pop_beta(0,0,t_max,h,'exponential');
+    [beta_g, beta_f, mean1, var1, mean2, var2] = cell_pop_beta(0,0,t_max,h,'exponential',init_type,mu1,sigma1,mu2,sigma2);
     c = exp_model_c(beta_g, beta_f);
     fprintf("c %f\n", c);
     g_dist = makedist('Exponential','mu',1/m_g);

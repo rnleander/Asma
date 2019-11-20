@@ -1,4 +1,4 @@
-function [g1_norm, g2_norm, growth_rate_fit] = cell_pop_wrapper(a1max,a2max,T,beta,init_type)
+function [g1_norm, g2_norm, growth_rate_fit, mean1, var1, mean2, var2] = cell_pop_wrapper(a1max,a2max,T,beta,init_type,mu1,sigma1,mu2,sigma2)
 %B1 and B2 are the per capita rates of leaving a given stage.
 %cells that leave the first stage enter the second stage.
 %cells that leave the second stage, divide, and their daughters enter the
@@ -27,10 +27,10 @@ num_steps=3;
 hfine=h/num_steps;
 
 %get transition rates for each stage on a fine grid.
-[beta1, beta2] = cell_pop_beta(a1max,a2max,T,hfine,beta,init_type);
+[beta1, beta2, mean1, var1, mean2, var2] = cell_pop_beta(a1max,a2max,T,hfine,beta,init_type,mu1,sigma1,mu2,sigma2);
 
 %get initial population densities
-[init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,h,init_type,G1G2ratio,beta);
+[init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,h,init_type,G1G2ratio,beta,mu1,sigma1,mu2,sigma2);
 
 %times for plotting;
 t=0:h:T;
@@ -63,13 +63,13 @@ ages2=0:h:a2max+T;
     Vq = interp2(t,ages1,g1_norm,Xq,Yq);
     surf(Xq,Yq,Vq);
     hold on;
-    axis([0 T 0 T]);
+    axis([0 T 0 T/2]);
     xlabel('time (hrs)');
     ylabel('age (hrs)');
     zlabel('g age density');
     title('g age density through time');
     shading interp;
-    view([90, 90, 90]);
+    view([-90, -90, 90]);
     %saveas(gcf,'G1');
     hold off;
     plot_filename = sprintf("figures/%s_%s_g_age_structure", beta, init_type);
@@ -94,13 +94,13 @@ ages2=0:h:a2max+T;
     Vq = interp2(t,ages2,g2_norm,Xq,Yq);
     surf(Xq,Yq,Vq);
     hold on;
-    axis([0 T 0 T]);
+    axis([0 T 0 T/2]);
     xlabel('time (hrs)');
     ylabel('age (hrs)');
     zlabel('f age density');
     title('f age density through time');
     shading interp;
-    view([90, 90, 90]);
+    view([-90, -90, 90]);
     %saveas(gcf,'G2');
     hold off;
     plot_filename = sprintf("figures/%s_%s_f_age_structure", beta, init_type);
@@ -143,9 +143,33 @@ ages2=0:h:a2max+T;
     plot(t, total_population);
     hold on;
     plot(t, feval(expfit, t), '--');
-    title('Population over time with exponential growth fit');
+    if strcmp(beta, "exponential")
+        if strcmp(init_type, "uniform")
+            title("Exponential Uniform");
+        end
+        if strcmp(init_type, "gaussian")
+            title("Exponential Gaussian");
+        end
+        if strcmp(init_type, "stable_exp")
+            title("Exponential Stable");
+        end
+    end
+    if strcmp(beta, "inverse_gaussian")
+        if strcmp(init_type, "uniform")
+            title("Inverse Gaussian Uniform");
+        end
+        if strcmp(init_type, "gaussian")
+            title("Inverse Gaussian Gaussian");
+        end
+        if strcmp(init_type, "stable_exp")
+            title("Inverse Gaussian Stable");
+        end
+    end
+            
+    %title('Population over time with exponential growth fit');
     xlabel('Time (hrs)');
     ylabel('Population');
+    ylim([0 100]);
     legend('Experimental', 'Fit');
     plot_filename = sprintf("figures/%s_%s_growthrate", beta, init_type);
     saveas(gcf, plot_filename);

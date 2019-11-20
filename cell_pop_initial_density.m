@@ -1,4 +1,4 @@
-function [init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,h,init_type,G1G2ratio,beta)
+function [init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,h,init_type,G1G2ratio,beta,mu1,sigma1,mu2,sigma2)
 %the parameters for the initial distribution are chosen so as to be
 %reasonable given the distribution of times spent in the predicted first and second
 %stages of the MCF10A data. 
@@ -52,17 +52,17 @@ if strcmp(init_type, 'stable_invg')
     % NOW WE HAVE HARD CODED THESE VALUES IN TWO DIFFERENT PLACES    
     % THIS IS BAD
 
-    mu1=.25;
-    sigma1=1;
-    mu2=.064;
-    sigma2=.031;
+%     mu1=.25;
+%     sigma1=1;
+%     mu2=.064;
+%     sigma2=.031;
 
     g_0 = 1;
-	init_pop1 = stable_age_dist('invg', g_0, mu1, sigma1, mu2, sigma2, h, a1max+T);
+	init_pop1 = stable_age_dist('invg', g_0, mu1, sigma1, mu2, sigma2, h, a1max+T,mu1,sigma1,mu2,sigma2);
     %init_pop1 = (1/trapz(init_pop1))*init_pop1;
     beta_g = inverse_Gaussian_tp6(ages1, mu1, sigma1, "g",beta,init_type);
     f_0 = trapz((beta_g').*init_pop1)*h;
-    init_pop2 = stable_age_dist('invg', f_0, mu2, sigma2, mu1, sigma1, h, a1max+T);
+    init_pop2 = stable_age_dist('invg', f_0, mu2, sigma2, mu1, sigma1, h, a1max+T,mu1,sigma1,mu2,sigma2);
     
     pop1 = trapz(init_pop1)*h;
     pop2 = trapz(init_pop2)*h;
@@ -82,23 +82,23 @@ end
 
 if strcmp(init_type, 'stable_exp')
     
-    mu1=.25;
-    sigma1=1;
-    mu2=.064;
-    sigma2=.031;
-
-    mean1=1/mu1;
-    var1=sigma1^2/mu1^3;
-    mean2=1/mu2;
-    var2=sigma2^2/mu2^3;
+%     mu1=.25;
+%     sigma1=1;
+%     mu2=.064;
+%     sigma2=.031;
+% 
+%     mean1=1/mu1;
+%     var1=sigma1^2/mu1^3;
+%     mean2=1/mu2;
+%     var2=sigma2^2/mu2^3;
     
     g_0 = 1;
-    init_pop1 = stable_age_dist('exp', g_0, mu1, sigma1, mu2, sigma2, h, a1max+T);
+    init_pop1 = stable_age_dist('exp', g_0, mu1, sigma1, mu2, sigma2, h, a1max+T, init_type,mu1,sigma1,mu2,sigma2);
 
-    [beta_g, beta_f] = cell_pop_beta(a1max,a2max,T,h,beta,init_type);
+    [beta_g, beta_f, mean1, var1, mean2, var2] = cell_pop_beta(a1max,a2max,T,h,beta,init_type,mu1,sigma1,mu2,sigma2);
     
     f_0 = trapz((beta_g').*init_pop1)*h;
-    init_pop2 = stable_age_dist('exp', f_0, mu2, sigma2, mu1, sigma1, h, a1max+T);
+    init_pop2 = stable_age_dist('exp', f_0, mu2, sigma2, mu1, sigma1, h, a1max+T, init_type,mu1,sigma1,mu2,sigma2);
     
     pop1 = trapz(init_pop1)*h;
     pop2 = trapz(init_pop2)*h;
@@ -160,18 +160,19 @@ end
 
 figure;
 set(gcf, 'WindowStyle', 'docked');
-if strcmp(init_type,'gaussian')
-    title('Gaussian initial conditions');
-end
-if strcmp(init_type, 'stable_invg')
-    title('Inverse Gaussian stable distribution initial conditions');
-end
-if strcmp(init_type, 'stable_exp')
-    title('Exponential stable distribution initial conditions');
-end
-if strcmp(init_type,'uniform')
-    title('Uniform initial conditions');
-end
+% if strcmp(init_type,'gaussian')
+%     title('Gaussian initial conditions');
+% end
+% if strcmp(init_type, 'stable_invg')
+%     title('Inverse Gaussian stable distribution initial conditions');
+% end
+% if strcmp(init_type, 'stable_exp')
+%     title('Exponential stable distribution initial conditions');
+% end
+% if strcmp(init_type,'uniform')
+%     title('Uniform initial conditions');
+% end
+title('Initial conditions');
 hold on;
 %nexttile;
 plot(ages1, init_pop1);

@@ -62,13 +62,18 @@ while true
     xlabel('Time (hrs)');
     ylabel('Transition rate');
     title("Interpolation with n knots");
-    title(["L2 norm of the difference between ", sprintf("sucessive iterations for \\beta_%s", label)]);
+    title(sprintf("\\beta_%s", label));
     %legend(Legend);
     drawnow;
 end
 
 axh2 = get(gca, 'Children');
-legend([axh2(1), axh2(2)], 'Accepted', 'Rejected')
+l=legend([axh2(1), axh2(2)], 'Accepted', 'Rejected');
+if strcmp(label, "f") == 1
+    p=l.Position;
+    set(l, 'Position', [0.5, 0.4, p(3), p(4)]);
+end
+
 plot_filename = sprintf("figures/%s_%s_interpolation_beta_%s", beta, init_type, label);
 saveas(gcf, plot_filename);
 
@@ -82,10 +87,14 @@ plot_filename = sprintf("figures/%s_%s_interpolation_error_beta_%s", beta, init_
 set(gca, 'YScale', 'log');
 set(gca, 'XScale', 'log');
 xlabel("Number of knots");
-ylabel(["L2-norm difference",  "between iterations"]);
-title(["Interpolation error between steps as a function ", sprintf("of the number of knots for \\beta_%s", label)]);
+ylabel(sprintf('\\boldmath${\\vert\\vert\\hat{\\beta}_{%s,i}-\\hat{\\beta}_{%s,i+1}\\vert\\vert}_2$',label, label),'Interpreter','latex')
+title(sprintf("\\beta_%s", label));
 axh2 = get(gca, 'Children');
-legend([axh2(1), axh2(2)], 'Accepted', 'Rejected')
+l=legend([axh2(1), axh2(2)], 'Accepted', 'Rejected');
+if strcmp(label, "f") == 1
+    p=l.Position;
+    set(l, 'Position', [0.3, 0.4, p(3), p(4)]);
+end
 saveas(gcf, plot_filename);
 y=new_interpolant;
 %toc;
