@@ -1,4 +1,4 @@
-function [g1_norm, g2_norm, growth_rate_fit, mean1, var1, mean2, var2] = cell_pop_wrapper(a1max,a2max,T,beta,init_type,mu1,sigma1,mu2,sigma2)
+function [g1_norm, g2_norm, growth_rate_fit, mean1, var1, mean2, var2] = cell_pop_wrapper(a1max,a2max,T,beta,init_type,mu1,sigma1,mu2,sigma2,G1G2ratio,ratio_perturbation_factor)
 %B1 and B2 are the per capita rates of leaving a given stage.
 %cells that leave the first stage enter the second stage.
 %cells that leave the second stage, divide, and their daughters enter the
@@ -9,14 +9,26 @@ set(gcf, 'WindowStyle', 'docked');
 
 fprintf("model %s init_type %s\n", beta, init_type);
 
-%G1G2ratio=1/4;
-if strcmp(beta, 'inverse_gaussian')
-    G1G2ratio=0.286475;
-elseif strcmp(beta, 'exponential')
-    G1G2ratio=0.434779;
+% %G1G2ratio=1/4;
+% % These are the experimentally established correct ratios
+% if strcmp(beta, 'inverse_gaussian')
+%     % G1G2ratio=0.286475; % Correct
+%     G1G2ratio=0.286475;
+%     G1G2ratio = G1G2ratio*1.05;
+% elseif strcmp(beta, 'exponential')
+%     % G1G2ratio=0.434779; % Correct
+%     G1G2ratio=0.434779;
+%     G1G2ratio = G1G2ratio*1.05;
+% else
+%     fprintf("ERROR: invalid distribution, please choose inverse_gaussian or exponential\n");
+%     return;
+% end
+
+G1G2ratio = G1G2ratio*ratio_perturbation_factor;
+if ratio_perturbation_factor==1
+    perturb_str = "";
 else
-    fprintf("ERROR: invalid distribution, please choose inverse_gaussian or exponential\n");
-    return;
+    perturb_str = sprintf("_perturb%d", round(100*(ratio_perturbation_factor-1)));
 end
 
 h=.01;
@@ -27,10 +39,10 @@ num_steps=3;
 hfine=h/num_steps;
 
 %get transition rates for each stage on a fine grid.
-[beta1, beta2, mean1, var1, mean2, var2] = cell_pop_beta(a1max,a2max,T,hfine,beta,init_type,mu1,sigma1,mu2,sigma2);
+[beta1, beta2, mean1, var1, mean2, var2] = cell_pop_beta(a1max,a2max,T,hfine,beta,init_type,mu1,sigma1,mu2,sigma2, perturb_str);
 
 %get initial population densities
-[init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,h,init_type,G1G2ratio,beta,mu1,sigma1,mu2,sigma2);
+[init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,h,init_type,G1G2ratio,beta,mu1,sigma1,mu2,sigma2, perturb_str);
 
 %times for plotting;
 t=0:h:T;
@@ -72,7 +84,7 @@ ages2=0:h:a2max+T;
     view([-90, -90, 90]);
     %saveas(gcf,'G1');
     hold off;
-    plot_filename = sprintf("figures/%s_%s_g_age_structure", beta, init_type);
+    plot_filename = sprintf("figures/%s_%s_g_age_structure%s", beta, init_type, perturb_str);
     saveas(gcf, plot_filename);
       
 %     surf(t,ages2,g2_norm)
@@ -103,7 +115,7 @@ ages2=0:h:a2max+T;
     view([-90, -90, 90]);
     %saveas(gcf,'G2');
     hold off;
-    plot_filename = sprintf("figures/%s_%s_f_age_structure", beta, init_type);
+    plot_filename = sprintf("figures/%s_%s_f_age_structure%s", beta, init_type, perturb_str);
     saveas(gcf, plot_filename);
     
     figure;
@@ -118,7 +130,7 @@ ages2=0:h:a2max+T;
     ylim([0, 1]);
     title('g and f fractions as a function of time');
     legend('g','f');
-    plot_filename = sprintf("figures/%s_%s_gfratio", beta, init_type);
+    plot_filename = sprintf("figures/%s_%s_gfratio%s", beta, init_type, perturb_str);
     saveas(gcf, plot_filename);
     %saveas(gcf,'fractions_G1_G2');
 
@@ -145,24 +157,24 @@ ages2=0:h:a2max+T;
     plot(t, feval(expfit, t), '--');
     if strcmp(beta, "exponential")
         if strcmp(init_type, "uniform")
-            title("Exponential Uniform");
+            title("Exponential ; Uniform");
         end
         if strcmp(init_type, "gaussian")
-            title("Exponential Gaussian");
+            title("Exponential ; Gaussian");
         end
         if strcmp(init_type, "stable_exp")
-            title("Exponential Stable");
+            title("Exponential ; Stable");
         end
     end
     if strcmp(beta, "inverse_gaussian")
         if strcmp(init_type, "uniform")
-            title("Inverse Gaussian Uniform");
+            title("Inverse Gaussian ; Uniform");
         end
         if strcmp(init_type, "gaussian")
-            title("Inverse Gaussian Gaussian");
+            title("Inverse Gaussian ; Gaussian");
         end
-        if strcmp(init_type, "stable_exp")
-            title("Inverse Gaussian Stable");
+        if strcmp(init_type, "stable_invg")
+            title("Inverse Gaussian ; Stable");
         end
     end
             
@@ -171,7 +183,7 @@ ages2=0:h:a2max+T;
     ylabel('Population');
     ylim([0 100]);
     legend('Experimental', 'Fit');
-    plot_filename = sprintf("figures/%s_%s_growthrate", beta, init_type);
+    plot_filename = sprintf("figures/%s_%s_growthrate%s", beta, init_type, perturb_str);
     saveas(gcf, plot_filename);
     
     fprintf("\n\n");

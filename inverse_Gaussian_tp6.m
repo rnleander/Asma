@@ -1,4 +1,4 @@
-function y = inverse_Gaussian_tp6(a,m,s, label,beta,init_type)
+function y = inverse_Gaussian_tp6(a,m,s, label,beta,init_type, perturb_str)
 %approximates the transition probability at the ages in a using
 %interpolation
 %tic;
@@ -60,7 +60,7 @@ while true
         break
     end
     xlabel('Time (hrs)');
-    ylabel('Transition rate');
+    ylabel('Maturation rate');
     title("Interpolation with n knots");
     title(sprintf("\\beta_%s", label));
     %legend(Legend);
@@ -74,7 +74,7 @@ if strcmp(label, "f") == 1
     set(l, 'Position', [0.5, 0.4, p(3), p(4)]);
 end
 
-plot_filename = sprintf("figures/%s_%s_interpolation_beta_%s", beta, init_type, label);
+plot_filename = sprintf("figures/%s_%s_interpolation_beta_%s%s", beta, init_type, label, perturb_str);
 saveas(gcf, plot_filename);
 
 set(figure, 'WindowStyle', 'docked')
@@ -83,18 +83,18 @@ knots_mat = cell2mat(num_knots);
 error_mat = cell2mat(error);
 plot(knots_mat(1:size(knots_mat,2)-1), error_mat(1:size(error_mat,2)-1),'*', 'Color', [      0    0.4470    0.7410])
 plot(knots_mat(size(knots_mat,2)), error_mat(size(error_mat,2)),'*', 'Color', [0.8500    0.3250    0.0980])
-plot_filename = sprintf("figures/%s_%s_interpolation_error_beta_%s", beta, init_type, label);
+plot_filename = sprintf("figures/%s_%s_interpolation_error_beta_%s%s", beta, init_type, label, perturb_str);
 set(gca, 'YScale', 'log');
 set(gca, 'XScale', 'log');
 xlabel("Number of knots");
 ylabel(sprintf('\\boldmath${\\vert\\vert\\hat{\\beta}_{%s,i}-\\hat{\\beta}_{%s,i+1}\\vert\\vert}_2$',label, label),'Interpreter','latex')
 title(sprintf("\\beta_%s", label));
 axh2 = get(gca, 'Children');
-l=legend([axh2(1), axh2(2)], 'Accepted', 'Rejected');
-if strcmp(label, "f") == 1
-    p=l.Position;
-    set(l, 'Position', [0.3, 0.4, p(3), p(4)]);
-end
+% l=legend([axh2(1), axh2(2)], 'Accepted', 'Rejected');
+% if strcmp(label, "f") == 1
+%     p=l.Position;
+%     set(l, 'Position', [0.3, 0.4, p(3), p(4)]);
+% end
 saveas(gcf, plot_filename);
 y=new_interpolant;
 %toc;

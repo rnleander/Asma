@@ -1,4 +1,4 @@
-function [beta1, beta2, mean1, var1, mean2, var2] = cell_pop_beta(a1max,a2max,T,hfine,beta,init_type,mu1,sigma1,mu2,sigma2)
+function [beta1, beta2, mean1, var1, mean2, var2] = cell_pop_beta(a1max,a2max,T,hfine,beta,init_type,mu1,sigma1,mu2,sigma2, perturb_str)
 %B1 and B2 are the per capita rates of leaving a given stage.
 %cells that leave the first stage enter the second stage.
 %cells that leave the second stage, divide, and their daughters enter the
@@ -64,8 +64,8 @@ if strcmp(beta,'inverse_gaussian')
     imt1=onestagepdf2(ages1_fine,mu1,sigma1);
     imt2=onestagepdf2(ages2_fine,mu2,sigma2);
     
-    beta1=inverse_Gaussian_tp6(ages1_fine,mu1,sigma1, "g",beta,init_type);
-    beta2=inverse_Gaussian_tp6(ages2_fine,mu2,sigma2, "f",beta,init_type);
+    beta1=inverse_Gaussian_tp6(ages1_fine,mu1,sigma1, "g",beta,init_type, perturb_str);
+    beta2=inverse_Gaussian_tp6(ages2_fine,mu2,sigma2, "f",beta,init_type, perturb_str);
 
     label="Inverse Gaussian";
     params1 = sprintf("\\mu_g=%f \\sigma_g=%f", mu1, sigma1);
@@ -95,12 +95,10 @@ title(label);
 xlabel('Time (hrs)');
 ylabel('Probability Density');
 %legend(sprintf("I_g(a); %s", params1), sprintf("I_f(a); %s", params2), "IMT(a)=I_g(a)*I_f(a)");
-legend("I_g(a)", "I_f(a)", "I_g(a) \ast I_f(a)");
+legend("I_g(a)", "I_f(a)", "(I_g \ast I_f)(a)");
 drawnow;
 
-
-
-plot_filename = sprintf("figures/%s_%s_imt", beta, init_type);
+plot_filename = sprintf("figures/%s_%s_imt%s", beta, init_type, perturb_str);
 saveas(gcf, plot_filename);
 
 end

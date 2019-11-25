@@ -1,4 +1,4 @@
-function [init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,h,init_type,G1G2ratio,beta,mu1,sigma1,mu2,sigma2)
+function [init_pop1, init_pop2] = cell_pop_initial_density(a1max,a2max,T,h,init_type,G1G2ratio,beta,mu1,sigma1,mu2,sigma2,perturb_str)
 %the parameters for the initial distribution are chosen so as to be
 %reasonable given the distribution of times spent in the predicted first and second
 %stages of the MCF10A data. 
@@ -27,18 +27,21 @@ if strcmp(init_type,'gaussian')
     init_pop2=Gaussian_density(ages2,mu2, sigmasq2)*10^(-2);
     init_pop2(ages2>a2max)=0;
     %G2tot = cdf('Normal',a2max,mu2,sigmasq2^.5);
-    init_pop2 = init_pop2*(1/(trapz(init_pop2)*h));
-    
-    init_pop1=init_pop1*(G1G2ratio/(1+G1G2ratio));
-    init_pop2=init_pop2*(1/(1+G1G2ratio));
     
     
-    pop1 = trapz(init_pop1)*h;
-    fprintf("g_pop %f\n", pop1);
-    pop2 = trapz(init_pop2)*h;
-    fprintf("f_pop %f\n", pop2);
-    total_pop = pop1 + pop2;
-    fprintf("total_pop %f\n", total_pop);
+    
+%     init_pop2 = init_pop2*(1/(trapz(init_pop2)*h));
+%     
+%     init_pop1=init_pop1*(G1G2ratio/(1+G1G2ratio));
+%     init_pop2=init_pop2*(1/(1+G1G2ratio));
+%     
+%     
+%     pop1 = trapz(init_pop1)*h;
+%     fprintf("g_pop %f\n", pop1);
+%     pop2 = trapz(init_pop2)*h;
+%     fprintf("f_pop %f\n", pop2);
+%     total_pop = pop1 + pop2;
+%     fprintf("total_pop %f\n", total_pop);
 
 end
 
@@ -58,25 +61,25 @@ if strcmp(init_type, 'stable_invg')
 %     sigma2=.031;
 
     g_0 = 1;
-	init_pop1 = stable_age_dist('invg', g_0, mu1, sigma1, mu2, sigma2, h, a1max+T,mu1,sigma1,mu2,sigma2);
+	init_pop1 = stable_age_dist('invg', g_0, mu1, sigma1, mu2, sigma2, h, a1max+T,mu1,sigma1,mu2,sigma2,perturb_str);
     %init_pop1 = (1/trapz(init_pop1))*init_pop1;
-    beta_g = inverse_Gaussian_tp6(ages1, mu1, sigma1, "g",beta,init_type);
+    beta_g = inverse_Gaussian_tp6(ages1, mu1, sigma1, "g",beta,init_type,perturb_str);
     f_0 = trapz((beta_g').*init_pop1)*h;
-    init_pop2 = stable_age_dist('invg', f_0, mu2, sigma2, mu1, sigma1, h, a1max+T,mu1,sigma1,mu2,sigma2);
+    init_pop2 = stable_age_dist('invg', f_0, mu2, sigma2, mu1, sigma1, h, a1max+T,mu1,sigma1,mu2,sigma2,perturb_str);
     
-    pop1 = trapz(init_pop1)*h;
-    pop2 = trapz(init_pop2)*h;
-    total_pop = pop1 + pop2;
-    
-    init_pop1 = init_pop1/total_pop;
-    init_pop2 = init_pop2/total_pop;
-    
-    pop1 = trapz(init_pop1)*h;
-    fprintf("g_pop %f\n", pop1);
-    pop2 = trapz(init_pop2)*h;
-    fprintf("f_pop %f\n", pop2);
-    total_pop = pop1 + pop2;
-    fprintf("total_pop %f\n", total_pop);
+%     pop1 = trapz(init_pop1)*h;
+%     pop2 = trapz(init_pop2)*h;
+%     total_pop = pop1 + pop2;
+%     
+%     init_pop1 = init_pop1/total_pop;
+%     init_pop2 = init_pop2/total_pop;
+%     
+%     pop1 = trapz(init_pop1)*h;
+%     fprintf("g_pop %f\n", pop1);
+%     pop2 = trapz(init_pop2)*h;
+%     fprintf("f_pop %f\n", pop2);
+%     total_pop = pop1 + pop2;
+%     fprintf("total_pop %f\n", total_pop);
     
 end
 
@@ -93,26 +96,26 @@ if strcmp(init_type, 'stable_exp')
 %     var2=sigma2^2/mu2^3;
     
     g_0 = 1;
-    init_pop1 = stable_age_dist('exp', g_0, mu1, sigma1, mu2, sigma2, h, a1max+T, init_type,mu1,sigma1,mu2,sigma2);
+    init_pop1 = stable_age_dist('exp', g_0, mu1, sigma1, mu2, sigma2, h, a1max+T, init_type,mu1,sigma1,mu2,sigma2, perturb_str);
 
-    [beta_g, beta_f, mean1, var1, mean2, var2] = cell_pop_beta(a1max,a2max,T,h,beta,init_type,mu1,sigma1,mu2,sigma2);
+    [beta_g, beta_f, mean1, var1, mean2, var2] = cell_pop_beta(a1max,a2max,T,h,beta,init_type,mu1,sigma1,mu2,sigma2, perturb_str);
     
     f_0 = trapz((beta_g').*init_pop1)*h;
-    init_pop2 = stable_age_dist('exp', f_0, mu2, sigma2, mu1, sigma1, h, a1max+T, init_type,mu1,sigma1,mu2,sigma2);
+    init_pop2 = stable_age_dist('exp', f_0, mu2, sigma2, mu1, sigma1, h, a1max+T, init_type,mu1,sigma1,mu2,sigma2, perturb_str);
     
-    pop1 = trapz(init_pop1)*h;
-    pop2 = trapz(init_pop2)*h;
-    total_pop = pop1 + pop2;
-    
-    init_pop1 = init_pop1/total_pop;
-    init_pop2 = init_pop2/total_pop;
-    
-    pop1 = trapz(init_pop1)*h;
-    fprintf("g_pop %f\n", pop1);
-    pop2 = trapz(init_pop2)*h;
-    fprintf("f_pop %f\n", pop2);
-    total_pop = pop1 + pop2;
-    fprintf("total_pop %f\n", total_pop);
+%     pop1 = trapz(init_pop1)*h;
+%     pop2 = trapz(init_pop2)*h;
+%     total_pop = pop1 + pop2;
+%     
+%     init_pop1 = init_pop1/total_pop;
+%     init_pop2 = init_pop2/total_pop;
+%     
+%     pop1 = trapz(init_pop1)*h;
+%     fprintf("g_pop %f\n", pop1);
+%     pop2 = trapz(init_pop2)*h;
+%     fprintf("f_pop %f\n", pop2);
+%     total_pop = pop1 + pop2;
+%     fprintf("total_pop %f\n", total_pop);
 end
 
 if strcmp(init_type,'uniform')
@@ -137,6 +140,29 @@ if strcmp(init_type,'uniform')
 
     init_pop2(init_pop2_lb <= ages2.*init_pop2_ub >= ages1)=1/range2;
     
+%     init_pop1 = init_pop1*(1/(trapz(init_pop1)*h));
+%     init_pop2 = init_pop2*(1/(trapz(init_pop2)*h));
+%     init_pop1=init_pop1*G1G2ratio;
+%     
+%     
+%     pop1 = trapz(init_pop1)*h;
+%     pop2 = trapz(init_pop2)*h;
+%     total_pop = pop1 + pop2;
+%     
+%     init_pop1 = init_pop1/total_pop;
+%     init_pop2 = init_pop2/total_pop;
+%     
+%     pop1 = trapz(init_pop1)*h;
+%     fprintf("g_pop %f\n", pop1);
+%     pop2 = trapz(init_pop2)*h;
+%     fprintf("f_pop %f\n", pop2);
+%     total_pop = pop1 + pop2;
+%     fprintf("total_pop %f\n", total_pop);
+end
+
+
+
+% FACTORING THIS OUT FROM EACH SECTION
     init_pop1 = init_pop1*(1/(trapz(init_pop1)*h));
     init_pop2 = init_pop2*(1/(trapz(init_pop2)*h));
     init_pop1=init_pop1*G1G2ratio;
@@ -155,7 +181,6 @@ if strcmp(init_type,'uniform')
     fprintf("f_pop %f\n", pop2);
     total_pop = pop1 + pop2;
     fprintf("total_pop %f\n", total_pop);
-end
 
 
 figure;
@@ -172,7 +197,7 @@ set(gcf, 'WindowStyle', 'docked');
 % if strcmp(init_type,'uniform')
 %     title('Uniform initial conditions');
 % end
-title('Initial conditions');
+title('Initial age density');
 hold on;
 %nexttile;
 plot(ages1, init_pop1);
@@ -183,6 +208,6 @@ xlabel('Age');
 xlim([0, 20]);
 legend('g', 'f');
 hold off;
-plot_filename = sprintf("figures/%s_%s_initial_conditions", beta, init_type);
+plot_filename = sprintf("figures/%s_%s_initial_conditions%s", beta, init_type, perturb_str);
 saveas(gcf, plot_filename);
 end

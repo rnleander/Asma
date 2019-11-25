@@ -6,7 +6,7 @@
 % TEST PROCEDURE:
 % cell_pop_wrapper(30,30,100,'inverse_gaussian','gaussian')
 % cell_pop_wrapper(30,30,100,'inverse_gaussian','stable_invg')
-function g_vec = stable_age_dist(dist_type, g_0, m_g, s_g, m_f, s_f, h, t_max, init_type,mu1,sigma1,mu2,sigma2)
+function g_vec = stable_age_dist(dist_type, g_0, m_g, s_g, m_f, s_f, h, t_max, init_type,mu1,sigma1,mu2,sigma2, perturb_str)
 %t_max = 50
 %h = 0.1
 %m_g = 0.1
@@ -56,7 +56,7 @@ s_mesh = 0:h:t_max;
 if strcmp(dist_type, 'invg')
     % Second analytic method
     c = ivg_model_c(1/(s_g^2), 1/m_g, 1/(s_f^2), 1/m_f);
-    fprintf("c %f\n", c);
+    fprintf("predicted growth rate %f\n", c);
     g_invgcdf = @(a, c, m, s) g_0*exp(-c*a)*(1-invgcdf(a, m, s));
     g_vec=zeros(size(s_mesh,2),1);
     idx=1;
@@ -74,9 +74,9 @@ if strcmp(dist_type, 'invg')
 end
 
 if strcmp(dist_type, 'exp')
-    [beta_g, beta_f, mean1, var1, mean2, var2] = cell_pop_beta(0,0,t_max,h,'exponential',init_type,mu1,sigma1,mu2,sigma2);
+    [beta_g, beta_f, mean1, var1, mean2, var2] = cell_pop_beta(0,0,t_max,h,'exponential',init_type,mu1,sigma1,mu2,sigma2, perturb_str);
     c = exp_model_c(beta_g, beta_f);
-    fprintf("c %f\n", c);
+    fprintf("predicted growth rate %f\n", c);
     g_dist = makedist('Exponential','mu',1/m_g);
     
     g_exp = @(a, c) g_0*exp(-c*a)*(1-cdf(g_dist,a));
